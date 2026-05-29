@@ -32,10 +32,22 @@ tolerations:
     effect: NoSchedule
 
 nvidia:
-  # Mounts host NVIDIA library dir and sets LD_LIBRARY_PATH.
-  # Prepend container lib path so host libc doesn't shadow the container's.
   enabled: true
-  containerLibPath: /lib/x86_64-linux-gnu
-  hostLibraryDir: /usr/lib64
+  # Set if cluster has nvidia runtime class configured
+  runtimeClassName: ""
+  # Individual file mounts — no directory shadowing, avoids glibc conflicts
+  libraryFiles:
+    - hostPath: /usr/lib/libnvidia-ml.so
+      mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so
+    - hostPath: /usr/lib/libnvidia-ml.so.1
+      mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+    - hostPath: /usr/bin/nvidia-smi
+      mountPath: /usr/bin/nvidia-smi
+  devices:
+    - /dev/nvidiactl
+    - /dev/nvidia0
+    - /dev/nvidia-uvm
+    - /dev/nvidia-modeset
+    - /dev/nvidia-uvm-tools
 
 extraArgs: {}

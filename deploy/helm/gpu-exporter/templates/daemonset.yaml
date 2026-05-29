@@ -13,6 +13,9 @@ spec:
       labels:
         {{- include "gpu-exporter.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if .Values.nvidia.runtimeClassName }}
+      runtimeClassName: {{ .Values.nvidia.runtimeClassName | quote }}
+      {{- end }}
       hostPID: true
       serviceAccountName: {{ include "gpu-exporter.serviceAccountName" . }}
       {{- with .Values.nodeSelector }}
@@ -30,7 +33,9 @@ spec:
           {{- if .Values.nvidia.enabled }}
           env:
             - name: LD_LIBRARY_PATH
-              value: "{{ .Values.nvidia.containerLibPath }}:/usr/local/nvidia/lib64"
+              value: /usr/lib:/usr/lib/x86_64-linux-gnu
+            - name: NVML_LIB_PATH
+              value: /usr/lib/x86_64-linux-gnu
           {{- end }}
           args:
             - --addr=:{{ .Values.service.port }}
@@ -43,17 +48,29 @@ spec:
               protocol: TCP
           {{- if .Values.nvidia.enabled }}
           volumeMounts:
-            - name: nvidia-lib
-              mountPath: /usr/local/nvidia/lib64
-              readOnly: true
+            {{- range .Values.nvidia.libraryFiles }}
+            - name: lib-{{ base .hostPath | replace "." "-" }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+            {{- range .Values.nvidia.devices }}
+            - name: dev-{{ base . }}
+              mountPath: {{ . }}
+            {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
-            runAsUser: 0
+            privileged: true
       {{- if .Values.nvidia.enabled }}
       volumes:
-        - name: nvidia-lib
+        {{- range .Values.nvidia.libraryFiles }}
+        - name: lib-{{ base .hostPath | replace "." "-" }}
           hostPath:
-            path: {{ .Values.nvidia.hostLibraryDir }}
+            path: {{ .hostPath }}
+        {{- end }}
+        {{- range .Values.nvidia.devices }}
+        - name: dev-{{ base . }}
+          hostPath:
+            path: {{ . }}
+        {{- end }}
       {{- end }}

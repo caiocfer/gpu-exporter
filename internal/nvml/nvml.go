@@ -2,6 +2,7 @@ package nvml
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 )
@@ -19,6 +20,11 @@ type ProcessInfo struct {
 }
 
 func Init() error {
+	if p := os.Getenv("NVML_LIB_PATH"); p != "" {
+		if err := nvml.SetLibraryOptions(nvml.WithLibraryPath(p)); err != nil {
+			return fmt.Errorf("nvml.SetLibraryOptions: %w", err)
+		}
+	}
 	ret := nvml.Init()
 	if ret != nvml.SUCCESS {
 		return fmt.Errorf("nvml.Init: %s", nvml.ErrorString(ret))
