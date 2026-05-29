@@ -24,8 +24,7 @@ resources:
     cpu: 500m
     memory: 256Mi
 
-nodeSelector:
-  nvidia.com/gpu: "present"
+nodeSelector: {}
 
 tolerations:
   - key: nvidia.com/gpu
