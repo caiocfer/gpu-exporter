@@ -9,3 +9,4 @@ FROM gcr.io/distroless/cc-debian12
 COPY --from=builder /app/gpu-exporter /gpu-exporter
 EXPOSE 9835
 ENTRYPOINT ["/gpu-exporter"]
+# run: docker run --rm --gpus all -p 9835:9835 --pid=host gpu-exporter

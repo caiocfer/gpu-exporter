@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-const procRoot = "/proc"
+var Root = "/proc"
 
 func ReadComm(pid uint32) string {
-	data, err := os.ReadFile(fmt.Sprintf("%s/%d/comm", procRoot, pid))
+	data, err := os.ReadFile(fmt.Sprintf("%s/%d/comm", Root, pid))
 	if err != nil {
 		return ""
 	}
@@ -18,7 +18,7 @@ func ReadComm(pid uint32) string {
 }
 
 func ReadCmdline(pid uint32) string {
-	data, err := os.ReadFile(fmt.Sprintf("%s/%d/cmdline", procRoot, pid))
+	data, err := os.ReadFile(fmt.Sprintf("%s/%d/cmdline", Root, pid))
 	if err != nil {
 		return ""
 	}
@@ -26,7 +26,7 @@ func ReadCmdline(pid uint32) string {
 }
 
 func ReadStat(pid uint32) (cpuTicks uint64, err error) {
-	data, err := os.ReadFile(fmt.Sprintf("%s/%d/stat", procRoot, pid))
+	data, err := os.ReadFile(fmt.Sprintf("%s/%d/stat", Root, pid))
 	if err != nil {
 		return 0, err
 	}
@@ -52,7 +52,7 @@ func ReadStat(pid uint32) (cpuTicks uint64, err error) {
 }
 
 func ReadRSS(pid uint32) uint64 {
-	data, err := os.ReadFile(fmt.Sprintf("%s/%d/status", procRoot, pid))
+	data, err := os.ReadFile(fmt.Sprintf("%s/%d/status", Root, pid))
 	if err != nil {
 		return 0
 	}
