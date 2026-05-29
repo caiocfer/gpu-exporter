@@ -30,7 +30,7 @@ spec:
           {{- if .Values.nvidia.enabled }}
           env:
             - name: LD_LIBRARY_PATH
-              value: {{ join ":" .Values.nvidia.libraryPaths }}
+              value: "{{ .Values.nvidia.containerLibPath }}:/usr/local/nvidia/lib64"
           {{- end }}
           args:
             - --addr=:{{ .Values.service.port }}
@@ -43,11 +43,9 @@ spec:
               protocol: TCP
           {{- if .Values.nvidia.enabled }}
           volumeMounts:
-            {{- range $i, $p := .Values.nvidia.libraryPaths }}
-            - name: nvidia-lib-{{ $i }}
-              mountPath: {{ $p }}
+            - name: nvidia-lib
+              mountPath: /usr/local/nvidia/lib64
               readOnly: true
-            {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -55,9 +53,7 @@ spec:
             runAsUser: 0
       {{- if .Values.nvidia.enabled }}
       volumes:
-        {{- range $i, $p := .Values.nvidia.libraryPaths }}
-        - name: nvidia-lib-{{ $i }}
+        - name: nvidia-lib
           hostPath:
-            path: {{ $p }}
-        {{- end }}
+            path: {{ .Values.nvidia.hostLibraryDir }}
       {{- end }}

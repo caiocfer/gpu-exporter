@@ -32,9 +32,10 @@ tolerations:
     effect: NoSchedule
 
 nvidia:
+  # Mounts host NVIDIA library dir and sets LD_LIBRARY_PATH.
+  # Prepend container lib path so host libc doesn't shadow the container's.
   enabled: true
-  libraryPaths:
-    - /usr/lib/x86_64-linux-gnu
-    - /usr/lib64
+  containerLibPath: /lib/x86_64-linux-gnu
+  hostLibraryDir: /usr/lib64
 
 extraArgs: {}

@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   gpu-exporter:
   - apiVersion: v2
+    appVersion: 0.1.3
+    created: "2026-05-29T02:40:42.931037699-03:00"
+    description: NVIDIA GPU metrics exporter with per-process resource correlation
+    digest: 614bba8976258969163f148aa91063ae0ffd98c3d318f3a8765e5fe0af6d16b5
+    name: gpu-exporter
+    type: application
+    urls:
+    - https://caiocfer.github.io/gpu-exporter/gpu-exporter-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: 0.1.2
     created: "2026-05-29T02:33:09.336443429-03:00"
     description: NVIDIA GPU metrics exporter with per-process resource correlation
@@ -21,4 +31,4 @@ entries:
     urls:
     - https://caiocfer.github.io/gpu-exporter/gpu-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2026-05-29T02:33:09.336141846-03:00"
+generated: "2026-05-29T02:40:42.930709946-03:00"
