@@ -27,6 +27,11 @@ spec:
         - name: gpu-exporter
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.nvidia.enabled }}
+          env:
+            - name: LD_LIBRARY_PATH
+              value: {{ join ":" .Values.nvidia.libraryPaths }}
+          {{- end }}
           args:
             - --addr=:{{ .Values.service.port }}
             {{- range $key, $value := .Values.extraArgs }}
@@ -36,7 +41,23 @@ spec:
             - name: metrics
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          {{- if .Values.nvidia.enabled }}
+          volumeMounts:
+            {{- range $i, $p := .Values.nvidia.libraryPaths }}
+            - name: nvidia-lib-{{ $i }}
+              mountPath: {{ $p }}
+              readOnly: true
+            {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
             runAsUser: 0
+      {{- if .Values.nvidia.enabled }}
+      volumes:
+        {{- range $i, $p := .Values.nvidia.libraryPaths }}
+        - name: nvidia-lib-{{ $i }}
+          hostPath:
+            path: {{ $p }}
+        {{- end }}
+      {{- end }}

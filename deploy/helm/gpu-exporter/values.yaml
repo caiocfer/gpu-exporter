@@ -31,4 +31,10 @@ tolerations:
     operator: Exists
     effect: NoSchedule
 
+nvidia:
+  enabled: true
+  libraryPaths:
+    - /usr/lib/x86_64-linux-gnu
+    - /usr/lib64
+
 extraArgs: {}
