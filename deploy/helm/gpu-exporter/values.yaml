@@ -1,6 +1,6 @@
 image:
   repository: caiocfer/gpu-exporter
-  tag: v1
+  tag: v4
   pullPolicy: IfNotPresent
 
 nameOverride: ""

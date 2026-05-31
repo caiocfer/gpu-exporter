@@ -11,6 +11,7 @@ type Device struct {
 	Handle nvml.Device
 	Index  int
 	UUID   string
+	Name   string
 }
 
 type ProcessInfo struct {
@@ -51,7 +52,11 @@ func GetDevices() ([]Device, error) {
 		if ret != nvml.SUCCESS {
 			return nil, fmt.Errorf("GetUUID(%d): %s", i, nvml.ErrorString(ret))
 		}
-		devices = append(devices, Device{Handle: handle, Index: i, UUID: uuid})
+		name, ret := handle.GetName()
+		if ret != nvml.SUCCESS {
+			return nil, fmt.Errorf("GetName(%d): %s", i, nvml.ErrorString(ret))
+		}
+		devices = append(devices, Device{Handle: handle, Index: i, UUID: uuid, Name: name})
 	}
 	return devices, nil
 }

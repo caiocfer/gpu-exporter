@@ -47,24 +47,22 @@ func (c *ProcessCollector) Collect(ch chan<- prometheus.Metric) {
 				}
 				c.cache.Set(p.PID, name, cmdline)
 			}
+			labels := []string{formatIndex(dev.Index), dev.UUID, dev.Name, pidStr, name}
 			ch <- prometheus.MustNewConstMetric(
 				metrics.GpuProcessMemoryBytes, prometheus.GaugeValue,
-				float64(p.MemMB),
-				formatIndex(dev.Index), dev.UUID, pidStr, name,
+				float64(p.MemMB), labels...,
 			)
 			cpu, err := proc.ReadStat(p.PID)
 			if err == nil {
 				ch <- prometheus.MustNewConstMetric(
 					metrics.GpuProcessCPUSecondsTotal, prometheus.CounterValue,
-					float64(cpu)/100.0,
-					formatIndex(dev.Index), dev.UUID, pidStr, name,
+					float64(cpu)/100.0, labels...,
 				)
 			}
 			rss := proc.ReadRSS(p.PID)
 			ch <- prometheus.MustNewConstMetric(
 				metrics.GpuProcessRAMUsageBytes, prometheus.GaugeValue,
-				float64(rss),
-				formatIndex(dev.Index), dev.UUID, pidStr, name,
+				float64(rss), labels...,
 			)
 		}
 	}
