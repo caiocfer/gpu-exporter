@@ -34,8 +34,10 @@ spec:
           env:
             - name: LD_LIBRARY_PATH
               value: /usr/lib:/usr/lib/x86_64-linux-gnu
+            {{- if .Values.nvidia.nvmlLibPath }}
             - name: NVML_LIB_PATH
-              value: /usr/lib/x86_64-linux-gnu
+              value: {{ .Values.nvidia.nvmlLibPath }}
+            {{- end }}
           {{- end }}
           args:
             - --addr=:{{ .Values.service.port }}

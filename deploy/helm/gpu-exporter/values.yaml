@@ -35,6 +35,8 @@ nvidia:
   enabled: true
   # Set if cluster has nvidia runtime class configured
   runtimeClassName: ""
+  # Optional: explicit path to libnvidia-ml.so (bypasses LD_LIBRARY_PATH)
+  nvmlLibPath: ""
   # Individual file mounts — no directory shadowing, avoids glibc conflicts
   libraryFiles:
     - hostPath: /usr/lib/libnvidia-ml.so
