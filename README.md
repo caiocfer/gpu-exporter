@@ -55,6 +55,7 @@ Requires NVIDIA drivers on host nodes and `runtimeClassName: nvidia` if configur
 | `gpu_fan_speed_percent` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name` | GPU fan speed |
 | `gpu_process_memory_bytes` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | VRAM per PID |
 | `gpu_process_cpu_seconds_total` | Counter | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | CPU time per process |
+| `gpu_process_sm_utilization_percent` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | Per-process GPU SM utilization (0-100%). Requires R470+ driver. |
 | `gpu_process_ram_usage_bytes` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | System RAM per process |
 
 ## How It Works
@@ -63,3 +64,4 @@ Requires NVIDIA drivers on host nodes and `runtimeClassName: nvidia` if configur
 2. `/proc/<pid>/comm`, `stat`, and `status` are read for process name, CPU time, and RSS.
 3. Process metadata (name) is cached with configurable TTL to reduce filesystem reads.
 4. A merged view of compute and graphics GPU processes is exposed via a single `/metrics` endpoint.
+5. Per-process GPU SM utilization (0-100%) is collected via `nvmlDeviceGetProcessUtilization` (R470+ drivers). Only processes with active GPU compute context report SM utilization.

@@ -150,3 +150,25 @@ func GetMemoryInfo(dev Device) (uint64, uint64, error) {
 	}
 	return info.Total, info.Used, nil
 }
+
+func GetProcessUtilization(dev Device, lastSeenTimestamp uint64) (map[uint32]uint32, uint64, error) {
+	samples, ret := dev.Handle.GetProcessUtilization(lastSeenTimestamp)
+	if ret == nvml.ERROR_NOT_SUPPORTED {
+		return nil, lastSeenTimestamp, nil
+	}
+	if ret != nvml.SUCCESS {
+		return nil, lastSeenTimestamp, fmt.Errorf("GetProcessUtilization(%d): %s", dev.Index, nvml.ErrorString(ret))
+	}
+	if len(samples) == 0 {
+		return nil, lastSeenTimestamp, nil
+	}
+	smByPID := make(map[uint32]uint32)
+	var maxTS uint64
+	for _, s := range samples {
+		smByPID[s.Pid] = s.SmUtil
+		if s.TimeStamp > maxTS {
+			maxTS = s.TimeStamp
+		}
+	}
+	return smByPID, maxTS, nil
+}

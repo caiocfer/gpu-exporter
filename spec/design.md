@@ -50,7 +50,13 @@ The GPU Process Exporter is a lightweight, standalone Go application designed to
 | :--- | :--- |
 | `NVML_LIB_PATH` | Explicit path to `libnvidia-ml.so` directory or file (bypasses `LD_LIBRARY_PATH`) |
 
-### 4.4 Cache Strategy
+### 4.4 SM Utilization Sampling
+- `nvmlDeviceGetProcessUtilization` returns per-PID SM utilization samples since a given timestamp.
+- The collector tracks `lastSeenTimestamp` per device across scrapes to get delta samples.
+- For each PID, the latest `SmUtil` value is emitted as a Gauge (0-100%).
+- Returns `ERROR_NOT_SUPPORTED` on pre-R470 drivers → silently degraded.
+
+### 4.5 Cache Strategy
 - TTL-based cache for process name and cmdline (stable metadata).
 - VRAM usage and CPU ticks fetched per scrape (volatile).
 - Cache eviction on TTL expiry or PID reuse detection.
@@ -67,6 +73,7 @@ The GPU Process Exporter is a lightweight, standalone Go application designed to
 | `gpu_fan_speed_percent` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name` | GPU fan speed |
 | `gpu_process_memory_bytes` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | VRAM per PID |
 | `gpu_process_cpu_seconds_total` | Counter | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | CPU time per GPU process |
+| `gpu_process_sm_utilization_percent` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | Per-process GPU SM utilization (0-100%). Requires R470+ driver. |
 | `gpu_process_ram_usage_bytes` | Gauge | `gpu_id`, `gpu_uuid`, `gpu_name`, `pid`, `process_name` | System RAM per GPU process |
 
 ## 6. Implementation Details

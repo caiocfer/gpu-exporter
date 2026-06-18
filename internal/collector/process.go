@@ -12,18 +12,20 @@ import (
 )
 
 type ProcessCollector struct {
-	devices []nvml.Device
-	cache   *cache.Cache
+	devices       []nvml.Device
+	cache         *cache.Cache
+	lastTimestamps map[int]uint64
 }
 
 func NewProcessCollector(devices []nvml.Device, c *cache.Cache) *ProcessCollector {
-	return &ProcessCollector{devices: devices, cache: c}
+	return &ProcessCollector{devices: devices, cache: c, lastTimestamps: make(map[int]uint64)}
 }
 
 func (c *ProcessCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- metrics.GpuProcessMemoryBytes
 	ch <- metrics.GpuProcessCPUSecondsTotal
 	ch <- metrics.GpuProcessRAMUsageBytes
+	ch <- metrics.GpuProcessSmUtilizationPercent
 }
 
 func (c *ProcessCollector) Collect(ch chan<- prometheus.Metric) {
@@ -33,6 +35,16 @@ func (c *ProcessCollector) Collect(ch chan<- prometheus.Metric) {
 			log.Printf("ERROR: %v", err)
 			continue
 		}
+
+		smByPID, newTS, err := nvml.GetProcessUtilization(dev, c.lastTimestamps[dev.Index])
+		if err != nil {
+			log.Printf("ERROR: GetProcessUtilization(%d): %v", dev.Index, err)
+		} else {
+			if newTS > c.lastTimestamps[dev.Index] {
+				c.lastTimestamps[dev.Index] = newTS
+			}
+		}
+
 		for _, p := range procs {
 			pidStr := strconv.FormatUint(uint64(p.PID), 10)
 			entry, ok := c.cache.Get(p.PID)
@@ -64,6 +76,14 @@ func (c *ProcessCollector) Collect(ch chan<- prometheus.Metric) {
 				metrics.GpuProcessRAMUsageBytes, prometheus.GaugeValue,
 				float64(rss), labels...,
 			)
+			if smByPID != nil {
+				if smUtil, ok := smByPID[p.PID]; ok {
+					ch <- prometheus.MustNewConstMetric(
+						metrics.GpuProcessSmUtilizationPercent, prometheus.GaugeValue,
+						float64(smUtil), labels...,
+					)
+				}
+			}
 		}
 	}
 }

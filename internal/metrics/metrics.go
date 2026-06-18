@@ -51,6 +51,12 @@ var (
 		[]string{"gpu_id", "gpu_uuid", "gpu_name", "pid", "process_name"},
 		nil,
 	)
+	GpuProcessSmUtilizationPercent = prometheus.NewDesc(
+		"gpu_process_sm_utilization_percent",
+		"Percent of GPU SM (streaming multiprocessor) utilized by a specific process.",
+		[]string{"gpu_id", "gpu_uuid", "gpu_name", "pid", "process_name"},
+		nil,
+	)
 	GpuProcessRAMUsageBytes = prometheus.NewDesc(
 		"gpu_process_ram_usage_bytes",
 		"System RAM used by a GPU-active process.",
